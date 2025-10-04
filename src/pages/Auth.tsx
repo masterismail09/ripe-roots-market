@@ -53,7 +53,7 @@ const Auth = () => {
 
       if (error) throw error;
 
-      toast.success("Account created! Please check your email to verify your account.");
+      toast.success("Account created! You can now sign in.");
       setEmail("");
       setPassword("");
       setFullName("");
