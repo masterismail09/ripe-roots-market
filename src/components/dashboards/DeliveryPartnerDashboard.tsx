@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Package, LogOut, CheckCircle } from "lucide-react";
+import { Package, LogOut, CheckCircle, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 
@@ -78,6 +78,25 @@ const DeliveryPartnerDashboard = ({ user }: DeliveryPartnerDashboardProps) => {
     }
   };
 
+  const handleMarkNotDelivered = async (deliveryId: string) => {
+    try {
+      const { error } = await supabase
+        .from("deliveries")
+        .update({
+          delivery_status: "failed",
+          delivered_at: null
+        })
+        .eq("id", deliveryId);
+
+      if (error) throw error;
+
+      toast.success("Delivery marked as not delivered!");
+      fetchDeliveries();
+    } catch (error: any) {
+      toast.error("Failed to update delivery status");
+    }
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/");
@@ -137,13 +156,23 @@ const DeliveryPartnerDashboard = ({ user }: DeliveryPartnerDashboardProps) => {
                           <p><strong>Address:</strong> {delivery.delivery_address}</p>
                         </div>
                         {delivery.delivery_status !== "delivered" && (
-                          <Button 
-                            size="sm"
-                            onClick={() => handleMarkDelivered(delivery.id)}
-                          >
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Mark Delivered
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm"
+                              onClick={() => handleMarkDelivered(delivery.id)}
+                            >
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              Delivered
+                            </Button>
+                            <Button 
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleMarkNotDelivered(delivery.id)}
+                            >
+                              <X className="mr-2 h-4 w-4" />
+                              Not Delivered
+                            </Button>
+                          </div>
                         )}
                       </div>
                     </CardContent>
